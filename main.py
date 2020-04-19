@@ -7,6 +7,11 @@ from dotenv import load_dotenv
 from prepare_images import get_image, save_image, IMAGES_PATH
 
 
+def check_errors_in_vk_response(vk_response):
+    if 'error' in vk_response:
+        raise requests.exceptions.HTTPError(vk_response['error'])
+
+
 def get_random_xckd_comic_page_number():
     url = 'https://xkcd.com/info.0.json'
     response = requests.get(url)
@@ -36,10 +41,12 @@ def get_vk_wall_upload_address(vk_access_token, vk_group_id):
         'access_token': vk_access_token,
         'v': 5.103
     }
-    response = requests.get(url, params=payload)
-    response.raise_for_status()
 
-    return response.json()
+    response = requests.get(url, params=payload)
+    vk_wall_upload_address = response.json()
+    check_errors_in_vk_response(vk_wall_upload_address)
+
+    return vk_wall_upload_address
 
 
 def upload_image_to_vk_server(path_to_image, vk_wall_upload_url):
@@ -48,10 +55,10 @@ def upload_image_to_vk_server(path_to_image, vk_wall_upload_url):
         files = {
             'photo': file,
         }
-        response = requests.post(url, files=files)
-        response.raise_for_status()
 
+        response = requests.post(url, files=files)
         vk_server_upload_image_response = response.json()
+        check_errors_in_vk_response(vk_server_upload_image_response)
 
     return vk_server_upload_image_response
 
@@ -70,10 +77,10 @@ def save_image_on_vk_server(vk_access_token,
         'access_token': vk_access_token,
         'v': 5.103
     }
-    response = requests.post(url, data=payload)
-    response.raise_for_status()
 
+    response = requests.post(url, data=payload)
     vk_server_save_image_response = response.json()
+    check_errors_in_vk_response(vk_server_save_image_response)
 
     return vk_server_save_image_response
 
@@ -96,12 +103,12 @@ def post_image_to_vk_wall(vk_access_token,
         'access_token': vk_access_token,
         'v': 5.103
     }
+
     response = requests.post(url, data=payload)
-    response.raise_for_status()
+    vk_server_post_image_to_wall_response = response.json()
+    check_errors_in_vk_response(vk_server_post_image_to_wall_response)
 
-    vk_server_save_image_response = response.json()
-
-    return vk_server_save_image_response
+    return vk_server_post_image_to_wall_response
 
 
 def main():
@@ -122,6 +129,7 @@ def main():
         vk_access_token,
         vk_group_id
     )
+
     vk_wall_upload_url = vk_wall_upload_address['response']['upload_url']
 
     path_to_image = os.path.join(IMAGES_PATH, image_name)
