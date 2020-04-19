@@ -43,6 +43,8 @@ def get_vk_wall_upload_address(vk_access_token, vk_group_id):
     }
 
     response = requests.get(url, params=payload)
+    response.raise_for_status()
+
     vk_wall_upload_address = response.json()
     check_errors_in_vk_response(vk_wall_upload_address)
 
@@ -57,6 +59,8 @@ def upload_image_to_vk_server(path_to_image, vk_wall_upload_url):
         }
 
         response = requests.post(url, files=files)
+        response.raise_for_status()
+
         vk_server_upload_image_response = response.json()
         check_errors_in_vk_response(vk_server_upload_image_response)
 
@@ -79,6 +83,8 @@ def save_image_on_vk_server(vk_access_token,
     }
 
     response = requests.post(url, data=payload)
+    response.raise_for_status()
+
     vk_server_save_image_response = response.json()
     check_errors_in_vk_response(vk_server_save_image_response)
 
@@ -105,6 +111,8 @@ def post_image_to_vk_wall(vk_access_token,
     }
 
     response = requests.post(url, data=payload)
+    response.raise_for_status()
+    
     vk_server_post_image_to_wall_response = response.json()
     check_errors_in_vk_response(vk_server_post_image_to_wall_response)
 
